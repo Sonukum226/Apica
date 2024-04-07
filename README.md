@@ -5,7 +5,7 @@ Frontend.
 ● Run backend code
 1. Navigate to the folder Apica/Backend/cmd
 2. Write the command in the console go run main.go.
-3. The backend server will be running on the localhost:8080
+3. The backend server will be running on the http://localhost:8080
    
 ● Run the Frontend code
 1. Navigate to the folder Apica/Frontend/lru
@@ -18,6 +18,7 @@ API Details
 
 ● http://localhost:8080/lru/add (POST API)
 1. Payload { "val": "provide value", "key": "provide key"}
+   
 ● http://localhost:8080/lru/get?key={query_params} (GET API)
 
 ● Basic Auth Details
