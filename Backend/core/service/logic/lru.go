@@ -9,7 +9,6 @@ import (
 const cacheSize = 1024
 const eivictionTime = 5
 
-var TimeStampToNode = make(map[int64][]*Node)
 var KeyValueStore = make(map[string]*Node)
 
 type Node struct {
@@ -37,24 +36,24 @@ func getNode(val, key string, timeStamp int64) *Node {
 // function to set the cache
 func (a *Lru) Set(key, val string) error {
 	currentUnixSecond := time.Now().Unix()
-	cleanCache(currentUnixSecond)
+	// cleanCache(currentUnixSecond)
 	UpdateCache(key, val, currentUnixSecond)
 	return nil
 }
 
-func cleanCache(timeStamp int64) {
-	keyToDelete := []int64{}
-	for key, value := range TimeStampToNode {
-		if key < timeStamp-eivictionTime {
-			for _, v := range value {
-				remove(v)
-			}
-			keyToDelete = append(keyToDelete, key)
+func (a *Lru) CleanCache() {
+	fmt.Println("cached clean started")
+	timeStamp := time.Now().Unix()
+	keyToDelete := []*Node{}
+	for _, value := range KeyValueStore {
+		if value.UnixTime < timeStamp-eivictionTime {
+			keyToDelete = append(keyToDelete, value)
 		}
 	}
 	for _, v := range keyToDelete {
-		delete(TimeStampToNode, v)
+		remove(v)
 	}
+	fmt.Println("cached clean done")
 }
 
 // removeing the cache
@@ -99,7 +98,6 @@ func UpdateCache(key, val string, currentUnixSecond int64) {
 	}
 	Cache = data
 	KeyValueStore[key] = data
-	TimeStampToNode[currentUnixSecond] = append(TimeStampToNode[currentUnixSecond], data)
 }
 
 // func to get the cache
@@ -109,7 +107,6 @@ func (a *Lru) Get(key string) (string, error) {
 		return "", errors.New("key not found")
 	}
 	currentUnixSecond := time.Now().Unix()
-	fmt.Println("current unix ", currentUnixSecond, "  existing unix : ", value.UnixTime)
 	if currentUnixSecond > value.UnixTime+eivictionTime {
 		return "", errors.New("key expired")
 	}
